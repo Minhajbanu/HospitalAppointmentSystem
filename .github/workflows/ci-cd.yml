@@ -17,33 +17,37 @@ jobs:
           - 27017:27017
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # Setup Node.js
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
 
-    # Backend Build
-    - name: Install Backend Dependencies
-      working-directory: ./backend
-      run: npm install
+      # Backend Build
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm ci
 
-    - name: Test Backend (optional)
-      working-directory: ./backend
-      run: npm test || echo "No tests configured"
+      - name: Test Backend (optional)
+        working-directory: ./backend
+        run: npm test || echo "No tests configured"
 
-    # Frontend Build
-    - name: Install Frontend Dependencies
-      working-directory: ./frontend
-      run: npm install
+      # Frontend Build
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
 
-    - name: Build Frontend
-      working-directory: ./frontend
-      run: npm run build
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
 
-    # Docker Build (optional)
-    - name: Build Docker Images
-      run: docker-compose -f docker-compose.yml build
+      # Docker Build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Images
+        run: docker compose -f docker-compose.yml build
